@@ -23,6 +23,8 @@ class Boot extends Phaser.Scene{
         this.load.spritesheet("skeleton_death", "./assets/badies/skeleton_death.png", { frameWidth: 150, frameHeight: 150 });
         this.load.spritesheet("skeleton_hit", "./assets/badies/skeleton_hit.png", { frameWidth: 150, frameHeight: 150 });
         this.load.spritesheet("skeleton_idle", "./assets/badies/skeleton_idle.png", { frameWidth: 150, frameHeight: 150 });
+        //load island
+        this.load.image("island", "./assets/island.png");
     }
 
     create(){
@@ -53,14 +55,14 @@ class Boot extends Phaser.Scene{
             this.anims.create({
                 key: name + "_death",
                 frames: this.anims.generateFrameNumbers(name + "_death", { start: 0}),
-                frameRate: 8,
-                repeat: -1
+                frameRate: 7,
+                repeat: 0
             });
             this.anims.create({
                 key: name + "_hit",
                 frames: this.anims.generateFrameNumbers(name + "_hit", { start: 0}),
-                frameRate: 8,
-                repeat: -1
+                frameRate: 14,
+                repeat: 0
             });
             this.anims.create({
                 key: name + "_idle",

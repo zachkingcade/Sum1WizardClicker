@@ -14,13 +14,20 @@ class MainScene extends Phaser.Scene {
         }
         // Status of monster
         this.alive = false;
+        //list of monster names
+        this.monsterName = "";
+        this.monsterNameList = ["eye","goblin","mushroom","skeleton"];
     }
 
     // Runs when we first enter this scene
     create() {
-
+        let monsterIsland = this.add.image(350,570,"island");
+        monsterIsland.setScale(.35);
+        monsterIsland.setFlipX(true);
+        let wizardIsland = this.add.image(90,570,"island");
+        wizardIsland.setScale(.35);
         // Set the starting monster
-        this.setMonster();
+        this.newMonster();
         // Create hp text
         this.hpText = this.add.text(225, 700, "");
         // Create the souls text
@@ -68,27 +75,50 @@ class MainScene extends Phaser.Scene {
         this.hp -= amount;
         // Check if monster is dead
         if (this.hp <= 0 && this.alive) {
-            console.log("You killed the monster!");
             // Set monster to no longer be alive
             this.alive = false;
             // Play a death animation
-            console.log("here");
-            this.monsterImage.play("eye_death")
-            this.monsterImage.on('animationcomplete', ()=>{
-                console.log("stopped");
+            this.monsterImage.play(this.monsterName + "_death");
+            //so this is an odd chain but it plays the death animation, fades them out, and spawns a new one.
+            this.monsterImage.once('animationcomplete', ()=>{
+                this.monsterImage.anims.stop();
+                this.tweens.add({
+                    targets: [this.monsterImage],
+                    duration: 400,
+                    alpha: 0,
+                    onComplete:
+                        () => {
+                            //we wait a small amount of time after he has faded
+                            setTimeout(() => {
+                                this.newMonster();
+                                this.souls++;
+                                //this.saveGame();
+                            }, 500)
+                        }
+                });
+            });
+        } else if(this.alive) {
+            console.log("alive");
+            this.monsterImage.play(this.monsterName + "_hit");
+            this.monsterImage.once('animationcomplete', ()=>{
+                this.monsterImage.play(this.monsterName + "_idle");
             });
         }
     }
 
-    setMonster() {
+    newMonster() {
+        if(this.monsterImage){
+            this.monsterImage.destroy();
+        }
+        this.monsterName = this.monsterNameList[Math.floor(Math.random() * this.monsterNameList.length)];
         // Reset hp of the monster
         this.hp = 5;
         this.alive = true;
 
         // Create a image of monster at position x:225,y:400
-        this.monsterImage = this.add.sprite(350, 400, "eye_idle");
+        this.monsterImage = this.add.sprite(360, 400, this.monsterName + "_death", 3);
         this.monsterImage.setFlipX(true);
-        this.monsterImage.play("eye_idle")
+        this.monsterImage.play(this.monsterName + "_idle")
         // Set the size of the monster
         this.monsterImage.setScale(4);
         // Make the monster clickable
@@ -96,7 +126,9 @@ class MainScene extends Phaser.Scene {
 
         // Handler/callback for the 'pointer down' event
         this.monsterImage.on('pointerdown', ()=> {
-            this.damage(1);
+            if(this.alive){
+                this.damage(1);
+            }
         })
     }
 }
